@@ -11,6 +11,8 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+extracted_paper.txt
+extract_paper.ps1
 
 # IntelliJ related
 *.iml

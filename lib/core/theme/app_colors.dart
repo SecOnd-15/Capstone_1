@@ -23,6 +23,7 @@ class AppColors {
   static const Color background = Color(0xFFF5F1EB);      // Warm off-white
   static const Color surface = Color(0xFFFFFFFF);          // Pure white
   static const Color surfaceVariant = Color(0xFFF0EBE3);   // Warm surface
+  static const Color border = Color(0xFFE0D8CE);           // Warm border
 
   // ── Text ─────────────────────────────────────────────────────────
   static const Color textPrimary = Color(0xFF1B1B1B);

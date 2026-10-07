@@ -3,6 +3,9 @@ import 'package:flutter/services.dart';
 import 'dart:math' as math;
 
 import '../../core/theme/app_colors.dart';
+import '../../models/user_session.dart';
+import '../admin/admin_main_navigation.dart';
+import '../navigation/main_navigation.dart';
 import 'registration_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -20,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _obscurePassword = true;
   bool _isLoading = false;
-  bool _rememberMe = false;
+  bool _rememberMe = true;
 
   // Animations
   late AnimationController _fadeController;
@@ -86,14 +89,67 @@ class _LoginScreenState extends State<LoginScreen>
   void _handleLogin() {
     if (!_formKey.currentState!.validate()) return;
 
+    final email = _emailController.text.trim();
+    final password = _passwordController.text;
+
     setState(() => _isLoading = true);
 
-    Future.delayed(const Duration(seconds: 1), () {
+    Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() => _isLoading = false);
-        
-        // Navigate to home screen after successful login
-        Navigator.pushReplacementNamed(context, '/home');
+
+        // Authenticate via RBAC UserSession
+        final success = UserSession.instance.login(email: email, password: password);
+
+        if (!success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Invalid email or password. Please check your credentials.',
+                style: TextStyle(fontFamily: 'Poppins'),
+              ),
+              backgroundColor: AppColors.error,
+              duration: Duration(seconds: 3),
+            ),
+          );
+          return;
+        }
+
+        // Clear any existing snackbars before navigating
+        ScaffoldMessenger.of(context).clearSnackBars();
+
+        // Pure RBAC Navigation: Route based on user role (Admin, Staff, Visitor)
+        if (UserSession.instance.isAdminOrStaff) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Welcome, ${UserSession.instance.fullName} (${UserSession.instance.roleDisplay})',
+                style: const TextStyle(fontFamily: 'Poppins'),
+              ),
+              backgroundColor: AppColors.primaryDark,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const AdminMainNavigation()),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Welcome back, ${UserSession.instance.fullName}!',
+                style: const TextStyle(fontFamily: 'Poppins'),
+              ),
+              backgroundColor: AppColors.success,
+              duration: const Duration(seconds: 2),
+            ),
+          );
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainNavigation()),
+          );
+        }
       }
     });
   }
@@ -118,6 +174,47 @@ class _LoginScreenState extends State<LoginScreen>
 
             // ── Decorative background icons ────────────────────────
             _buildDecorations(size),
+
+            // ── Top Left Back to Home Button ────────────────────────
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.only(left: 16, top: 12),
+                child: InkWell(
+                  onTap: () {
+                    if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    } else {
+                      Navigator.pushReplacementNamed(context, '/');
+                    }
+                  },
+                  borderRadius: BorderRadius.circular(20),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.16),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.arrow_back_rounded, color: Colors.white, size: 15),
+                        SizedBox(width: 5),
+                        Text(
+                          'Home',
+                          style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
 
             // ── Main scrollable content ────────────────────────────
             SafeArea(
@@ -298,14 +395,14 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               const SizedBox(height: 2),
               const Text(
-                'Sign in to continue your journey',
+                'Sign in to explore or manage Gran Verde',
                 style: TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 12,
                   color: AppColors.textSecondary,
                 ),
               ),
-              const SizedBox(height: 22),
+              const SizedBox(height: 20),
 
               // ── Email field ──────────────────────────────────────
               _buildLabel('Email Address'),
@@ -599,51 +696,90 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Widget _buildRegisterLink() {
-    return Wrap(
-      alignment: WrapAlignment.center,
-      crossAxisAlignment: WrapCrossAlignment.center,
+    return Column(
       children: [
-        Text(
-          "Don't have an account? ",
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 13,
-            color: Colors.white.withValues(alpha: 0.9),
-          ),
-        ),
-        GestureDetector(
-          onTap: () {
-            Navigator.push(
-              context,
-              PageRouteBuilder(
-                pageBuilder: (context, animation, secondaryAnimation) =>
-                    const RegistrationScreen(),
-                transitionsBuilder:
-                    (context, animation, secondaryAnimation, child) {
-                  return SlideTransition(
-                    position: Tween<Offset>(
-                      begin: const Offset(1, 0),
-                      end: Offset.zero,
-                    ).animate(CurvedAnimation(
-                      parent: animation,
-                      curve: Curves.easeOutCubic,
-                    )),
-                    child: child,
-                  );
-                },
-                transitionDuration: const Duration(milliseconds: 350),
+        Wrap(
+          alignment: WrapAlignment.center,
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Text(
+              "Don't have an account? ",
+              style: TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                color: Colors.white.withValues(alpha: 0.9),
               ),
-            );
+            ),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  PageRouteBuilder(
+                    pageBuilder: (context, animation, secondaryAnimation) =>
+                        const RegistrationScreen(),
+                    transitionsBuilder:
+                        (context, animation, secondaryAnimation, child) {
+                      return SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(1, 0),
+                          end: Offset.zero,
+                        ).animate(CurvedAnimation(
+                          parent: animation,
+                          curve: Curves.easeOutCubic,
+                        )),
+                        child: child,
+                      );
+                    },
+                    transitionDuration: const Duration(milliseconds: 350),
+                  ),
+                );
+              },
+              child: const Text(
+                'Register here',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.accentLight,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.accentLight,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 18),
+        InkWell(
+          onTap: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              Navigator.pushReplacementNamed(context, '/');
+            }
           },
-          child: const Text(
-            'Register here',
-            style: TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: AppColors.accentLight,
-              decoration: TextDecoration.underline,
-              decorationColor: AppColors.accentLight,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            ),
+            child: const Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_back_rounded, size: 14, color: Colors.white),
+                SizedBox(width: 6),
+                Text(
+                  'Back to Homepage',
+                  style: TextStyle(
+                    fontFamily: 'Poppins',
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

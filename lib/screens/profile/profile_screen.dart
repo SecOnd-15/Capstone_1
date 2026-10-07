@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
+import '../../models/user_session.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+  const ProfileScreen({super.key, this.scaffoldKey});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -137,10 +139,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Container(
       width: double.infinity,
       padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 20,
+        top: MediaQuery.of(context).padding.top + 10,
         bottom: 32,
-        left: 20,
-        right: 20,
+        left: 16,
+        right: 16,
       ),
       decoration: const BoxDecoration(
         gradient: AppColors.heroGradient,
@@ -151,6 +153,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       child: Column(
         children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              IconButton(
+                icon: const Icon(Icons.menu_rounded, color: Colors.white),
+                onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
+              ),
+              const SizedBox(width: 48),
+            ],
+          ),
+          const SizedBox(height: 8),
           // Avatar
           Container(
             width: 90,
@@ -170,10 +183,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
               ],
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                'MS',
-                style: TextStyle(
+                UserSession.instance.initials,
+                style: const TextStyle(
                   fontFamily: 'Poppins',
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
@@ -185,9 +198,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 16),
 
           // Name
-          const Text(
-            'Maria Santos',
-            style: TextStyle(
+          Text(
+            UserSession.instance.fullName,
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -197,9 +210,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           const SizedBox(height: 4),
 
           // Email
-          const Text(
-            'maria.santos@email.com',
-            style: TextStyle(
+          Text(
+            UserSession.instance.email,
+            style: const TextStyle(
               fontFamily: 'Poppins',
               fontSize: 13,
               color: Colors.white70,
@@ -209,7 +222,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           // Member since
           const Text(
-            'Member since November 2024',
+            'Member since October 2026',
             style: TextStyle(
               fontFamily: 'Poppins',
               fontSize: 12,
@@ -345,22 +358,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildListTile(IconData icon, String title, VoidCallback onTap) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      leading: Icon(icon, color: AppColors.textSecondary, size: 24),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        leading: Icon(icon, color: AppColors.textSecondary, size: 24),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
         ),
-      ),
-      trailing: const Icon(
-        Icons.chevron_right_rounded,
-        color: AppColors.textSecondary,
+        trailing: const Icon(
+          Icons.chevron_right_rounded,
+          color: AppColors.textSecondary,
+        ),
       ),
     );
   }
@@ -371,36 +387,39 @@ class _ProfileScreenState extends State<ProfileScreen> {
     String trailing,
     VoidCallback onTap,
   ) {
-    return ListTile(
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      leading: Icon(icon, color: AppColors.textSecondary, size: 24),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        leading: Icon(icon, color: AppColors.textSecondary, size: 24),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
         ),
-      ),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            trailing,
-            style: const TextStyle(
-              fontFamily: 'Poppins',
-              fontSize: 13,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              trailing,
+              style: const TextStyle(
+                fontFamily: 'Poppins',
+                fontSize: 13,
+                color: AppColors.textSecondary,
+              ),
+            ),
+            const SizedBox(width: 4),
+            const Icon(
+              Icons.chevron_right_rounded,
               color: AppColors.textSecondary,
             ),
-          ),
-          const SizedBox(width: 4),
-          const Icon(
-            Icons.chevron_right_rounded,
-            color: AppColors.textSecondary,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -411,22 +430,25 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool value,
     Function(bool) onChanged,
   ) {
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      leading: Icon(icon, color: AppColors.textSecondary, size: 24),
-      title: Text(
-        title,
-        style: const TextStyle(
-          fontFamily: 'Poppins',
-          fontSize: 14,
-          fontWeight: FontWeight.w500,
-          color: AppColors.textPrimary,
+    return Material(
+      color: Colors.transparent,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+        leading: Icon(icon, color: AppColors.textSecondary, size: 24),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontFamily: 'Poppins',
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
         ),
-      ),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeTrackColor: AppColors.primary,
+        trailing: Switch(
+          value: value,
+          onChanged: onChanged,
+          activeTrackColor: AppColors.primary,
+        ),
       ),
     );
   }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/experience_model.dart';
-import '../booking/booking_screen.dart';
+import '../booking/quick_booking_modal.dart';
 
 class ExperienceDetailScreen extends StatelessWidget {
   final Experience experience;
@@ -385,12 +385,7 @@ class ExperienceDetailScreen extends StatelessWidget {
         child: SafeArea(
           child: ElevatedButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BookingScreen(experience: experience),
-                ),
-              );
+              QuickBookingModal.show(context, experience);
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.primary,

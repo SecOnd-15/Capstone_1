@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import '../../core/theme/app_colors.dart';
 import '../../models/experience_model.dart';
 import 'experience_detail_screen.dart';
+import '../booking/smart_concierge_screen.dart';
+import '../booking/quick_booking_modal.dart';
 
 class ExperiencesScreen extends StatefulWidget {
-  const ExperiencesScreen({super.key});
+  final GlobalKey<ScaffoldState>? scaffoldKey;
+  const ExperiencesScreen({super.key, this.scaffoldKey});
 
   @override
   State<ExperiencesScreen> createState() => _ExperiencesScreenState();
@@ -40,33 +43,99 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: IconButton(
+          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
+          onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
+        ),
         title: const Text(
-          'Experiences',
+          'Agri-Tourism Packages',
           style: TextStyle(
             fontFamily: 'Poppins',
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
         ),
         backgroundColor: AppColors.background,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.search_rounded),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Column(
         children: [
+          // Smart Concierge Hero Button
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const SmartConciergeScreen()),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  gradient: AppColors.heroGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Smart Agri-Tourism Concierge',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            'Match tours via Content-Based Filtering & Cosine Similarity',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontSize: 10,
+                              color: Colors.white70,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white70, size: 14),
+                  ],
+                ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 8),
+
           // Filter chips
           SizedBox(
-            height: 50,
+            height: 44,
             child: ListView(
               scrollDirection: Axis.horizontal,
               physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               children: [
                 _buildFilterChip('All'),
                 const SizedBox(width: 8),
@@ -74,12 +143,16 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
                 const SizedBox(width: 8),
                 _buildFilterChip('Workshops'),
                 const SizedBox(width: 8),
+                _buildFilterChip('Custom'),
+                const SizedBox(width: 8),
                 _buildFilterChip('Accommodations'),
                 const SizedBox(width: 8),
                 _buildFilterChip('Dining'),
               ],
             ),
           ),
+
+          const SizedBox(height: 8),
 
           // Experiences grid
           Expanded(
@@ -113,22 +186,24 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
         });
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary : Colors.transparent,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.textSecondary,
-            width: 1.5,
+            color: isSelected ? AppColors.primary : AppColors.textSecondary.withValues(alpha: 0.4),
+            width: 1.2,
           ),
           borderRadius: BorderRadius.circular(20),
         ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
-            color: isSelected ? Colors.white : AppColors.textSecondary,
+        child: Center(
+          child: Text(
+            label,
+            style: TextStyle(
+              fontFamily: 'Poppins',
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: isSelected ? Colors.white : AppColors.textSecondary,
+            ),
           ),
         ),
       ),
@@ -151,7 +226,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
+              color: Colors.black.withValues(alpha: 0.06),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -162,7 +237,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
           children: [
             // Gradient header with emoji
             Container(
-              height: 100,
+              height: 96,
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
@@ -179,26 +254,23 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
                   Center(
                     child: Text(
                       experience.imageEmoji,
-                      style: const TextStyle(fontSize: 48),
+                      style: const TextStyle(fontSize: 44),
                     ),
                   ),
                   Positioned(
                     top: 8,
                     right: 8,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
+                        borderRadius: BorderRadius.circular(10),
                       ),
                       child: Text(
                         experience.category,
                         style: const TextStyle(
                           fontFamily: 'Poppins',
-                          fontSize: 10,
+                          fontSize: 9,
                           fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
@@ -209,7 +281,7 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
               ),
             ),
 
-            // White body
+            // Card body
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(12),
@@ -224,49 +296,49 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
                     Text(
                       experience.subtitle,
                       style: const TextStyle(
                         fontFamily: 'Poppins',
-                        fontSize: 11,
+                        fontSize: 10,
                         color: AppColors.textSecondary,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Row(
                       children: [
                         const Icon(
                           Icons.access_time_rounded,
-                          size: 14,
+                          size: 13,
                           color: AppColors.textSecondary,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 3),
                         Text(
                           experience.duration,
                           style: const TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 11,
+                            fontSize: 10,
                             color: AppColors.textSecondary,
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const Spacer(),
                         const Icon(
                           Icons.star_rounded,
-                          size: 14,
+                          size: 13,
                           color: Colors.amber,
                         ),
-                        const SizedBox(width: 4),
+                        const SizedBox(width: 2),
                         Text(
                           experience.rating.toString(),
                           style: const TextStyle(
                             fontFamily: 'Poppins',
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: AppColors.textPrimary,
                           ),
@@ -284,16 +356,16 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
                               _formatPrice(experience.price),
                               style: const TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: 14,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: AppColors.primary,
                               ),
                             ),
                             const Text(
-                              '/person',
+                              '/pax',
                               style: TextStyle(
                                 fontFamily: 'Poppins',
-                                fontSize: 10,
+                                fontSize: 9,
                                 color: AppColors.textSecondary,
                               ),
                             ),
@@ -301,31 +373,22 @@ class _ExperiencesScreenState extends State<ExperiencesScreen> {
                         ),
                         ElevatedButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ExperienceDetailScreen(experience: experience),
-                              ),
-                            );
+                            QuickBookingModal.show(context, experience);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primary,
                             foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 6,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 4),
                             minimumSize: Size.zero,
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(10),
                             ),
                           ),
                           child: const Text(
                             'Book',
                             style: TextStyle(
                               fontFamily: 'Poppins',
-                              fontSize: 12,
+                              fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
                           ),

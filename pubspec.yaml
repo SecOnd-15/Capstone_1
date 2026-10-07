@@ -35,6 +35,39 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.8
 
+  # ── Backend: Firebase ──────────────────────────────────────────────
+  firebase_core: ^3.12.1            # Firebase initialisation
+  cloud_firestore: ^5.6.8           # All business records (19 collections)
+
+  # ── Backend: Supabase ──────────────────────────────────────────────
+  supabase_flutter: ^2.8.4          # Auth, RBAC, Storage, Scheduled Functions
+
+  # ── State Management ──────────────────────────────────────────────
+  provider: ^6.1.2                  # ChangeNotifier-based DI
+
+  # ── UI & Formatting ───────────────────────────────────────────────
+  intl: ^0.20.2                     # Date/currency formatting
+  cached_network_image: ^3.4.1      # Image caching for ads/proofs
+  shimmer: ^3.0.0                   # Loading skeleton placeholders
+  google_fonts: ^6.2.1              # Poppins, Inter, etc.
+
+  # ── Gate Pass (QR) ────────────────────────────────────────────────
+  qr_flutter: ^4.1.0                # QR code generation (client gate pass)
+  mobile_scanner: ^6.0.6            # QR code scanning (admin gate scanner)
+
+  # ── Location Tracking ─────────────────────────────────────────────
+  geolocator: ^13.0.2               # GPS position stream for transit tracking
+
+  # ── File Handling ──────────────────────────────────────────────────
+  image_picker: ^1.1.2              # Payment proof photo capture/selection
+
+  # ── Utilities ──────────────────────────────────────────────────────
+  uuid: ^4.5.1                      # Generate UUIDs for document IDs
+  url_launcher: ^6.3.1              # Open external links
+  share_plus: ^10.1.4               # Share gate pass
+  path_provider: ^2.1.5             # Local file paths
+  csv: ^6.0.0                       # CSV export of visitor database
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

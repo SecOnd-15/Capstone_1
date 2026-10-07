@@ -26,6 +26,20 @@ class _RegistrationScreenState extends State<RegistrationScreen>
   bool _agreeToTerms = false;
   int _currentStep = 0;
 
+  /// Determines the current registration progress step based on filled fields.
+  void _updateStep() {
+    int newStep = 0;
+    if (_fullNameController.text.trim().isNotEmpty) newStep = 1;
+    if (_emailController.text.trim().isNotEmpty && newStep >= 1) newStep = 2;
+    if (_contactController.text.trim().isNotEmpty && newStep >= 2) newStep = 3;
+    if (_passwordController.text.isNotEmpty && newStep >= 3) newStep = 4;
+    if (_confirmPasswordController.text.isNotEmpty && newStep >= 4) newStep = 5;
+
+    if (newStep != _currentStep) {
+      setState(() => _currentStep = newStep);
+    }
+  }
+
   // Animations
   late AnimationController _fadeController;
   late AnimationController _slideController;
@@ -234,19 +248,14 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                           child: Row(
                             children: [
                               IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: Container(
-                                  padding: const EdgeInsets.all(7),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  child: const Icon(
-                                    Icons.arrow_back_ios_new_rounded,
-                                    color: Colors.white,
-                                    size: 16,
-                                  ),
-                                ),
+                                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                                onPressed: () {
+                                  if (Navigator.canPop(context)) {
+                                    Navigator.pop(context);
+                                  } else {
+                                    Navigator.pushReplacementNamed(context, '/');
+                                  }
+                                },
                               ),
                               const Expanded(
                                 child: Text(
@@ -260,19 +269,13 @@ class _RegistrationScreenState extends State<RegistrationScreen>
                                   ),
                                 ),
                               ),
-                              const SizedBox(width: 44),
+                              const SizedBox(width: 48), // Balance leading button
                             ],
                           ),
                         ),
                       ),
 
-                      // ── Step indicator ───────────────────────────────
-                      FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: _buildStepIndicator(),
-                      ),
-
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 20),
 
                       // ── Form card ────────────────────────────────────
                       Expanded(
@@ -297,76 +300,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStepIndicator() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 4),
-      child: Row(
-        children: [
-          _buildStepDot(0, 'Personal'),
-          _buildStepLine(0),
-          _buildStepDot(1, 'Security'),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStepDot(int step, String label) {
-    final isActive = _currentStep >= step;
-    return Column(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          width: 28,
-          height: 28,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: isActive ? Colors.white : Colors.white.withValues(alpha: 0.25),
-            border: Border.all(
-              color: isActive ? AppColors.accent : Colors.white.withValues(alpha: 0.5),
-              width: 2,
-            ),
-          ),
-          child: Center(
-            child: isActive && _currentStep > step
-                ? const Icon(Icons.check, size: 14, color: AppColors.primary)
-                : Text(
-                    '${step + 1}',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: isActive ? AppColors.primary : Colors.white,
-                    ),
-                  ),
-          ),
-        ),
-        const SizedBox(height: 3),
-        Text(
-          label,
-          style: TextStyle(
-            fontFamily: 'Poppins',
-            fontSize: 10,
-            color: Colors.white.withValues(alpha: isActive ? 0.95 : 0.6),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepLine(int afterStep) {
-    final isActive = _currentStep > afterStep;
-    return Expanded(
-      child: Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
-          height: 2,
-          color: isActive ? Colors.white.withValues(alpha: 0.8) : Colors.white.withValues(alpha: 0.3),
         ),
       ),
     );
@@ -516,28 +449,6 @@ class _RegistrationScreenState extends State<RegistrationScreen>
               ),
 
               const SizedBox(height: 20),
-
-              // ── Divider ──────────────────────────────────────────
-              Row(
-                children: [
-                  Expanded(child: Divider(color: Colors.grey.shade200)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
-                      'Security',
-                      style: TextStyle(
-                        fontFamily: 'Poppins',
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey.shade500,
-                      ),
-                    ),
-                  ),
-                  Expanded(child: Divider(color: Colors.grey.shade200)),
-                ],
-              ),
-
-              const SizedBox(height: 14),
 
               // ── Password ─────────────────────────────────────────
               _buildLabel('Password'),
@@ -825,21 +736,5 @@ class _RegistrationScreenState extends State<RegistrationScreen>
         ),
       ],
     );
-  }
-
-  void _updateStep() {
-    final hasPersonalInfo = _fullNameController.text.isNotEmpty &&
-        _emailController.text.isNotEmpty &&
-        _contactController.text.isNotEmpty;
-    final hasSecurityInfo = _passwordController.text.isNotEmpty &&
-        _confirmPasswordController.text.isNotEmpty;
-
-    int newStep = 0;
-    if (hasPersonalInfo) newStep = 1;
-    if (hasPersonalInfo && hasSecurityInfo) newStep = 1;
-
-    if (newStep != _currentStep) {
-      setState(() => _currentStep = newStep);
-    }
   }
 }
