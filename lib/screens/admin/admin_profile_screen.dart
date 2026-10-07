@@ -102,7 +102,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                   ),
                   icon: const Icon(Icons.logout_rounded, size: 18),
                   label: const Text(
-                    'Logout Admin Session',
+                    'Log out',
                     style: TextStyle(
                       fontFamily: 'Poppins',
                       fontSize: 14,

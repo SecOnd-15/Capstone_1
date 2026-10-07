@@ -265,7 +265,7 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                       icon: const Icon(Icons.logout_rounded, size: 18),
                       label: const Text(
-                        'Logout',
+                        'Log out',
                         style: TextStyle(
                           fontFamily: 'Poppins',
                           fontSize: 13,
