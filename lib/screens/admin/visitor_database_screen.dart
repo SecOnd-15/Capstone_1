@@ -4,7 +4,8 @@ import '../../models/booking_model.dart';
 
 class VisitorDatabaseScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const VisitorDatabaseScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const VisitorDatabaseScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<VisitorDatabaseScreen> createState() => _VisitorDatabaseScreenState();
@@ -74,10 +75,18 @@ class _VisitorDatabaseScreenState extends State<VisitorDatabaseScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-          onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
-        ),
+        leading: (widget.onBack != null || Navigator.canPop(context))
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () {
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            : null,
         title: const Text(
           'Visitor Tracking Database',
           style: TextStyle(

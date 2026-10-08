@@ -31,6 +31,7 @@ class Experience {
   final List<Color> gradientColors;
   final String imageEmoji;
   final bool isCoreOffering; // Kakaw Lakaw, Bahandi sa Uma, Customized Options
+  final String? imageUrl;
 
   // 4 Feature vector dimensions for Content-Based Filtering with Cosine Similarity (Paper Section 2.2.2.1)
   // Dimensions: [Experience Type (0..1), Group Fit (0..1), Educational/Hands-on Depth (0..1), Budget/Value (0..1)]
@@ -53,6 +54,7 @@ class Experience {
     required this.gradientColors,
     required this.imageEmoji,
     this.isCoreOffering = false,
+    this.imageUrl,
     required this.featureVector,
   });
 }
@@ -108,6 +110,7 @@ class ExperienceData {
       reviewCount: 98,
       icon: Icons.wb_sunny_rounded,
       imageEmoji: '🦜',
+      imageUrl: 'https://images.unsplash.com/photo-1447752875215-b2761acb3c5d?auto=format&fit=crop&w=800&q=80',
       gradientColors: [Color(0xFF1B5E20), Color(0xFF004D40)],
       isCoreOffering: true,
       featureVector: [0.9, 0.8, 0.7, 0.95],
@@ -140,6 +143,7 @@ class ExperienceData {
       reviewCount: 142,
       icon: Icons.forest_rounded,
       imageEmoji: '🌿',
+      imageUrl: 'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80',
       gradientColors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
       isCoreOffering: true,
       featureVector: [0.9, 0.7, 0.6, 0.8], // [Nature Tour, Solo/Small/Group, Moderate Depth, Accessible Budget]
@@ -173,6 +177,7 @@ class ExperienceData {
       reviewCount: 118,
       icon: Icons.emoji_food_beverage_rounded,
       imageEmoji: '🍫',
+      imageUrl: 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=80',
       gradientColors: [Color(0xFF4E342E), Color(0xFF3E2723)],
       isCoreOffering: true,
       featureVector: [0.6, 0.8, 0.95, 0.5], // [Workshop/Gastronomy, Families/Groups, Deep Hands-on, Premium Value]
@@ -205,6 +210,7 @@ class ExperienceData {
       reviewCount: 64,
       icon: Icons.tune_rounded,
       imageEmoji: '✨',
+      imageUrl: 'https://images.unsplash.com/photo-1500651230702-0e2d8a49d4ad?auto=format&fit=crop&w=800&q=80',
       gradientColors: [Color(0xFF00695C), Color(0xFF004D40)],
       isCoreOffering: true,
       featureVector: [0.7, 0.95, 0.85, 0.6], // [Custom Itinerary, Large Groups/Retreats, Tailored Depth, Flexible]
@@ -240,6 +246,7 @@ class ExperienceData {
       reviewCount: 42,
       icon: Icons.hotel_rounded,
       imageEmoji: '🌙',
+      imageUrl: 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80',
       gradientColors: [Color(0xFF1A237E), Color(0xFF283593)],
       featureVector: [0.4, 0.6, 0.5, 0.2],
       availableAddOns: defaultAddOns,
@@ -258,33 +265,32 @@ class ExperienceData {
       ],
     ),
     const Experience(
-      id: 'exp_tasting',
-      title: 'Coffee & Cacao Tasting Flight',
-      subtitle: 'Highland terroir & single-origin flavors',
+      id: 'exp_research_tour',
+      title: 'Regenerative Soil & Agroforestry Masterclass',
+      subtitle: 'Technical training for students, farmers & researchers',
       description:
-          'An intimate sensory masterclass comparing 5 micro-lot cacao origins and 3 shade-grown Batangas coffee beans with flavor wheel tasting notes guided by our farm sommelier.',
-      category: 'Dining',
-      price: 650.0,
-      duration: '1.5 hours',
-      rating: 4.6,
-      reviewCount: 156,
-      icon: Icons.coffee_rounded,
-      imageEmoji: '☕',
-      gradientColors: [Color(0xFF6D4C41), Color(0xFF3E2723)],
-      featureVector: [0.5, 0.5, 0.7, 0.9],
+          'Deep-dive technical immersion into multi-canopy agroforestry systems, biochar composting, cacao grafting, pest management without synthetics, and soil carbon measurement protocols.',
+      category: 'Masterclasses',
+      price: 950.0,
+      duration: '3.5 hours',
+      rating: 4.9,
+      reviewCount: 56,
+      icon: Icons.biotech_rounded,
+      imageEmoji: '🔬',
+      imageUrl: 'https://images.unsplash.com/photo-1587132137056-bfbf0166836e?auto=format&fit=crop&w=800&q=80',
+      gradientColors: [Color(0xFF33691E), Color(0xFF1B5E20)],
+      featureVector: [0.95, 0.5, 1.0, 0.7],
       availableAddOns: defaultAddOns,
       inclusions: [
-        '5 single-estate cacao tasting samples',
-        '3 pour-over shade-grown coffee flights',
-        'Interactive flavor wheel guide sheet',
-        'Take-home mini sampler bag',
+        'Technical training manual & lab notebook',
+        'Hands-on soil sampling & grafting workshop',
+        'Bio-fertilizer sample to take home',
+        'Gran Verde Agroforestry Certificate of Completion',
       ],
       availableDates: [
-        'Oct 10, 2026',
-        'Oct 11, 2026',
         'Oct 14, 2026',
-        'Oct 18, 2026',
         'Oct 21, 2026',
+        'Oct 28, 2026',
       ],
     ),
   ];

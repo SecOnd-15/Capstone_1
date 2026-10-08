@@ -175,46 +175,6 @@ class _LoginScreenState extends State<LoginScreen>
             // ── Decorative background icons ────────────────────────
             _buildDecorations(size),
 
-            // ── Top Left Back to Home Button ────────────────────────
-            SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.only(left: 16, top: 12),
-                child: InkWell(
-                  onTap: () {
-                    if (Navigator.canPop(context)) {
-                      Navigator.pop(context);
-                    } else {
-                      Navigator.pushReplacementNamed(context, '/');
-                    }
-                  },
-                  borderRadius: BorderRadius.circular(20),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.16),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.arrow_back_rounded, color: Colors.white, size: 15),
-                        SizedBox(width: 5),
-                        Text(
-                          'Home',
-                          style: TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
 
             // ── Main scrollable content ────────────────────────────
             SafeArea(

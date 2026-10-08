@@ -4,7 +4,8 @@ import '../../models/experience_model.dart';
 
 class QuotationsPricingScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const QuotationsPricingScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const QuotationsPricingScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<QuotationsPricingScreen> createState() => _QuotationsPricingScreenState();
@@ -90,10 +91,18 @@ class _QuotationsPricingScreenState extends State<QuotationsPricingScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-          onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
-        ),
+        leading: (widget.onBack != null || Navigator.canPop(context))
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () {
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            : null,
         title: const Text(
           'Quotation & Pricing Rules',
           style: TextStyle(

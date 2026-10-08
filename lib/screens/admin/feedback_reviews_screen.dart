@@ -3,7 +3,8 @@ import '../../core/theme/app_colors.dart';
 
 class FeedbackReviewsScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const FeedbackReviewsScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const FeedbackReviewsScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +46,18 @@ class FeedbackReviewsScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-          onPressed: () => scaffoldKey?.currentState?.openDrawer(),
-        ),
+        leading: (onBack != null || Navigator.canPop(context))
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () {
+                  if (onBack != null) {
+                    onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            : null,
         title: const Text(
           'Customer Feedback & Reviews',
           style: TextStyle(

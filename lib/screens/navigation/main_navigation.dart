@@ -94,7 +94,7 @@ class _MainNavigationState extends State<MainNavigation> {
                       ),
                       // Hide Side Navigation Button
                       IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => _scaffoldKey.currentState?.closeDrawer(),
                         tooltip: 'Hide Menu',
                         icon: Container(
                           padding: const EdgeInsets.all(6),
@@ -229,7 +229,7 @@ class _MainNavigationState extends State<MainNavigation> {
                         size: 20,
                       ),
                       onTap: () {
-                        Navigator.pop(context);
+                        _scaffoldKey.currentState?.closeDrawer();
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -253,7 +253,7 @@ class _MainNavigationState extends State<MainNavigation> {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         UserSession.instance.logout();
-                        Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
@@ -346,7 +346,7 @@ class _MainNavigationState extends State<MainNavigation> {
           setState(() {
             _currentIndex = index;
           });
-          Navigator.pop(context); // Hide side drawer
+          _scaffoldKey.currentState?.closeDrawer();
         },
       ),
     );

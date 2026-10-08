@@ -3,7 +3,8 @@ import '../../core/theme/app_colors.dart';
 
 class PromotionsManagerScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const PromotionsManagerScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const PromotionsManagerScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<PromotionsManagerScreen> createState() => _PromotionsManagerScreenState();
@@ -37,10 +38,18 @@ class _PromotionsManagerScreenState extends State<PromotionsManagerScreen> {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-          onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
-        ),
+        leading: (widget.onBack != null || Navigator.canPop(context))
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () {
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            : null,
         title: const Text(
           'Ads & Media Management',
           style: TextStyle(

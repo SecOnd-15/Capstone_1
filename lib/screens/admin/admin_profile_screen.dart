@@ -4,7 +4,8 @@ import '../../models/user_session.dart';
 
 class AdminProfileScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const AdminProfileScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const AdminProfileScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<AdminProfileScreen> createState() => _AdminProfileScreenState();
@@ -54,30 +55,36 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
             // Security & Operations
             _buildSection(
-              'Security & System Settings',
+              UserSession.instance.isAdmin
+                  ? 'Security & System Settings'
+                  : 'Account & Security',
               [
                 _buildActionTile(
                   Icons.lock_outline_rounded,
                   'Change Password',
-                  'Update admin master password credentials',
+                  UserSession.instance.isAdmin
+                      ? 'Update admin master password credentials'
+                      : 'Update your account password',
                   () {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(content: Text('Password management dialog.')),
                     );
                   },
                 ),
-                _buildActionTile(
-                  Icons.storefront_outlined,
-                  'Farm Operating Hours & Schedule',
-                  'Mon - Sun (8:00 AM - 5:00 PM)',
-                  () {},
-                ),
-                _buildActionTile(
-                  Icons.security_outlined,
-                  'Role-Based Access Logs',
-                  'Supabase audit trail & access history',
-                  () {},
-                ),
+                if (UserSession.instance.isAdmin) ...[
+                  _buildActionTile(
+                    Icons.storefront_outlined,
+                    'Farm Operating Hours & Schedule',
+                    'Mon - Sun (8:00 AM - 5:00 PM)',
+                    () {},
+                  ),
+                  _buildActionTile(
+                    Icons.security_outlined,
+                    'Role-Based Access Logs',
+                    'Supabase audit trail & access history',
+                    () {},
+                  ),
+                ],
               ],
             ),
             const SizedBox(height: 20),
@@ -90,7 +97,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     UserSession.instance.logout();
-                    Navigator.pushReplacementNamed(context, '/login');
+                    Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,
@@ -141,16 +148,20 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       ),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              IconButton(
-                icon: const Icon(Icons.menu_rounded, color: Colors.white),
-                onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
+          if (widget.onBack != null || Navigator.canPop(context))
+            Align(
+              alignment: Alignment.centerLeft,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+                onPressed: () {
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
               ),
-              const SizedBox(width: 48),
-            ],
-          ),
+            ),
           const SizedBox(height: 8),
           Container(
             width: 80,

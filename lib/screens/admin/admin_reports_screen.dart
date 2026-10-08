@@ -3,7 +3,8 @@ import '../../core/theme/app_colors.dart';
 
 class AdminReportsScreen extends StatelessWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const AdminReportsScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const AdminReportsScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   Widget build(BuildContext context) {
@@ -11,10 +12,18 @@ class AdminReportsScreen extends StatelessWidget {
       backgroundColor: AppColors.background,
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-          onPressed: () => scaffoldKey?.currentState?.openDrawer(),
-        ),
+        leading: (onBack != null || Navigator.canPop(context))
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                onPressed: () {
+                  if (onBack != null) {
+                    onBack!();
+                  } else if (Navigator.canPop(context)) {
+                    Navigator.pop(context);
+                  }
+                },
+              )
+            : null,
         title: const Text(
           'Descriptive Reports',
           style: TextStyle(

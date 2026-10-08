@@ -14,6 +14,26 @@ import 'admin_profile_screen.dart';
 import 'admin_inquiries_screen.dart';
 import '../../models/inquiry_store.dart';
 
+class _AdminNavItem {
+  final Widget Function(GlobalKey<ScaffoldState> scaffoldKey, void Function(int index)? onNavigate) builder;
+  final IconData icon;
+  final String label;
+  final String subtitle;
+  final String category;
+  final bool adminOnly;
+  final int Function()? badgeCount;
+
+  const _AdminNavItem({
+    required this.builder,
+    required this.icon,
+    required this.label,
+    required this.subtitle,
+    required this.category,
+    this.adminOnly = false,
+    this.badgeCount,
+  });
+}
+
 class AdminMainNavigation extends StatefulWidget {
   const AdminMainNavigation({super.key});
 
@@ -43,38 +63,237 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
     if (mounted) setState(() {});
   }
 
-  List<Widget> get _screens => [
-    AdminDashboardScreen(scaffoldKey: _scaffoldKey),
-    PaymentVerificationScreen(scaffoldKey: _scaffoldKey),
-    AdminInquiriesScreen(scaffoldKey: _scaffoldKey),
-    VisitorDatabaseScreen(scaffoldKey: _scaffoldKey),
-    AdminReportsScreen(scaffoldKey: _scaffoldKey),
-    FarmCalendarScreen(scaffoldKey: _scaffoldKey),
-    QuotationsPricingScreen(scaffoldKey: _scaffoldKey),
-    PromotionsManagerScreen(scaffoldKey: _scaffoldKey),
-    FeedbackReviewsScreen(scaffoldKey: _scaffoldKey),
-    AdminProfileScreen(scaffoldKey: _scaffoldKey),
+  void _navigateToIndex(int index) {
+    if (index >= 0 && index < _activeNavItems.length) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  List<_AdminNavItem> get _allNavItems => [
+    _AdminNavItem(
+      builder: (key, onNav) => AdminDashboardScreen(scaffoldKey: key, onNavigateTab: onNav),
+      icon: Icons.dashboard_rounded,
+      label: 'Operations Dashboard',
+      subtitle: UserSession.instance.isAdmin
+          ? 'Farm KPI metrics & revenue'
+          : 'Daily visitor & tour schedule',
+      category: 'Core Operations',
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => FarmCalendarScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.calendar_month_rounded,
+      label: 'Master Farm Calendar',
+      subtitle: UserSession.instance.isAdmin
+          ? 'Daily capacity & slot limits'
+          : 'Tour batch schedule & capacity',
+      category: 'Core Operations',
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => PaymentVerificationScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.verified_rounded,
+      label: 'Payment Verification',
+      subtitle: 'GCash & Bank receipt audits',
+      category: 'Core Operations',
+      badgeCount: () => BookingStore.instance
+          .getByStatus(BookingStatus.pendingVerification)
+          .length,
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => AdminInquiriesScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.mark_email_unread_rounded,
+      label: 'Visitor Inquiries & Leads',
+      subtitle: 'Advertisement responses & quotes',
+      category: 'Core Operations',
+      badgeCount: () => InquiryStore.instance.pendingCount,
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => VisitorDatabaseScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.people_rounded,
+      label: 'Visitor Database',
+      subtitle: 'Demographics & booking history',
+      category: 'Core Operations',
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => AdminReportsScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.bar_chart_rounded,
+      label: 'Descriptive Reports',
+      subtitle: 'Monthly visits & ratings',
+      category: 'Analytics & Rules',
+      adminOnly: true,
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => QuotationsPricingScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.request_quote_rounded,
+      label: 'Pricing & Quotations',
+      subtitle: 'Base rates & add-on rules',
+      category: 'Analytics & Rules',
+      adminOnly: true,
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => PromotionsManagerScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.campaign_rounded,
+      label: 'Promotions Manager',
+      subtitle: 'Hero videos & highlights',
+      category: 'Analytics & Rules',
+      adminOnly: true,
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => FeedbackReviewsScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.star_rounded,
+      label: 'Feedback & Quality',
+      subtitle: '5-factor survey ratings',
+      category: 'Analytics & Rules',
+    ),
+    _AdminNavItem(
+      builder: (key, onNav) => AdminProfileScreen(scaffoldKey: key, onBack: () => onNav?.call(0)),
+      icon: Icons.person_rounded,
+      label: UserSession.instance.isAdmin
+          ? 'Admin Profile & Settings'
+          : 'Staff Profile & Support',
+      subtitle: UserSession.instance.isAdmin
+          ? 'Security, hours & preferences'
+          : 'Shift guidelines & profile',
+      category: 'Account & System',
+    ),
   ];
+
+  List<_AdminNavItem> get _activeNavItems {
+    final isAdmin = UserSession.instance.isAdmin;
+    return _allNavItems.where((item) => !item.adminOnly || isAdmin).toList();
+  }
+
+  int _getBottomNavIndex(int currentItemIndex, List<_AdminNavItem> items) {
+    if (currentItemIndex >= items.length) return 0;
+    final currentLabel = items[currentItemIndex].label;
+    if (currentLabel == 'Operations Dashboard') return 0;
+    if (currentLabel == 'Master Farm Calendar') return 1;
+    if (currentLabel == 'Payment Verification') return 2;
+    if (currentLabel == 'Visitor Inquiries & Leads') return 3;
+    return 4; // 'All Tools'
+  }
+
+  void _handleBottomNavSelection(int destIndex, List<_AdminNavItem> items) {
+    switch (destIndex) {
+      case 0:
+        final idx = items.indexWhere((it) => it.label == 'Operations Dashboard');
+        if (idx != -1) setState(() => _currentIndex = idx);
+        break;
+      case 1:
+        final idx = items.indexWhere((it) => it.label == 'Master Farm Calendar');
+        if (idx != -1) setState(() => _currentIndex = idx);
+        break;
+      case 2:
+        final idx = items.indexWhere((it) => it.label == 'Payment Verification');
+        if (idx != -1) setState(() => _currentIndex = idx);
+        break;
+      case 3:
+        final idx = items.indexWhere((it) => it.label == 'Visitor Inquiries & Leads');
+        if (idx != -1) setState(() => _currentIndex = idx);
+        break;
+      case 4:
+        _scaffoldKey.currentState?.openDrawer();
+        break;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final pendingCount = BookingStore.instance
-        .getByStatus(BookingStatus.pendingVerification)
-        .length;
+    final items = _activeNavItems;
+    final safeIndex = _currentIndex < items.length ? _currentIndex : 0;
+    final pendingPaymentCount = BookingStore.instance.getByStatus(BookingStatus.pendingVerification).length;
+    final pendingInquiryCount = InquiryStore.instance.pendingCount;
 
     return Scaffold(
       key: _scaffoldKey,
       drawerEnableOpenDragGesture: true,
-      drawer: _buildAdminSideDrawer(context, pendingCount),
-      body: _screens[_currentIndex],
+      drawer: _buildAdminSideDrawer(context, items),
+      body: items[safeIndex].builder(_scaffoldKey, _navigateToIndex),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.06),
+              blurRadius: 10,
+              offset: const Offset(0, -2),
+            ),
+          ],
+          border: Border(
+            top: BorderSide(
+              color: AppColors.border.withValues(alpha: 0.6),
+              width: 0.8,
+            ),
+          ),
+        ),
+        child: NavigationBar(
+          height: 64,
+          elevation: 0,
+          backgroundColor: Colors.transparent,
+          selectedIndex: _getBottomNavIndex(safeIndex, items),
+          onDestinationSelected: (destIndex) => _handleBottomNavSelection(destIndex, items),
+          indicatorColor: AppColors.primaryLight.withValues(alpha: 0.2),
+          labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
+          destinations: [
+            const NavigationDestination(
+              icon: Icon(Icons.dashboard_outlined, size: 22),
+              selectedIcon: Icon(Icons.dashboard_rounded, size: 22, color: AppColors.primary),
+              label: 'Dashboard',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined, size: 22),
+              selectedIcon: Icon(Icons.calendar_month_rounded, size: 22, color: AppColors.primary),
+              label: 'Calendar',
+            ),
+            NavigationDestination(
+              icon: Badge(
+                isLabelVisible: pendingPaymentCount > 0,
+                label: Text('$pendingPaymentCount'),
+                child: const Icon(Icons.verified_outlined, size: 22),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: pendingPaymentCount > 0,
+                label: Text('$pendingPaymentCount'),
+                child: const Icon(Icons.verified_rounded, size: 22, color: AppColors.primary),
+              ),
+              label: 'Payments',
+            ),
+            NavigationDestination(
+              icon: Badge(
+                isLabelVisible: pendingInquiryCount > 0,
+                label: Text('$pendingInquiryCount'),
+                child: const Icon(Icons.mark_email_unread_outlined, size: 22),
+              ),
+              selectedIcon: Badge(
+                isLabelVisible: pendingInquiryCount > 0,
+                label: Text('$pendingInquiryCount'),
+                child: const Icon(Icons.mark_email_unread_rounded, size: 22, color: AppColors.primary),
+              ),
+              label: 'Inquiries',
+            ),
+            const NavigationDestination(
+              icon: Icon(Icons.grid_view_rounded, size: 22),
+              selectedIcon: Icon(Icons.grid_view_rounded, size: 22, color: AppColors.primary),
+              label: 'All Tools',
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget _buildAdminSideDrawer(BuildContext context, int pendingCount) {
+  Widget _buildAdminSideDrawer(BuildContext context, List<_AdminNavItem> items) {
     final session = UserSession.instance;
     final userName = session.fullName.isNotEmpty ? session.fullName : (session.isAdmin ? 'Maria Santos' : 'Razel Ponce');
     final userEmail = session.email.isNotEmpty ? session.email : (session.isAdmin ? 'maria@gmail.com' : 'staff@gmail.com');
     final initials = session.initials.isNotEmpty ? session.initials : (session.isAdmin ? 'MS' : 'RP');
+
+    // Group items by category
+    final Map<String, List<_AdminNavItem>> categorizedItems = {};
+    for (var item in items) {
+      categorizedItems.putIfAbsent(item.category, () => []).add(item);
+    }
 
     return Drawer(
       backgroundColor: AppColors.surface,
@@ -82,7 +301,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
         top: false,
         child: Column(
           children: [
-            // Admin Drawer Header with Hide/Close Button
+            // Admin Drawer Header
             Container(
               width: double.infinity,
               padding: EdgeInsets.only(
@@ -127,9 +346,8 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
                           ),
                         ),
                       ),
-                      // Hide Side Navigation Button
                       IconButton(
-                        onPressed: () => Navigator.pop(context),
+                        onPressed: () => _scaffoldKey.currentState?.closeDrawer(),
                         tooltip: 'Hide Menu',
                         icon: Container(
                           padding: const EdgeInsets.all(6),
@@ -187,74 +405,42 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
               ),
             ),
 
-            // Administrative Modules List
+            // Administrative Modules List (Grouped by Category)
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                children: [
-                  _buildNavTile(
-                    index: 0,
-                    icon: Icons.dashboard_rounded,
-                    label: 'Operations Dashboard',
-                    subtitle: 'Farm KPI metrics & revenue',
-                  ),
-                  _buildNavTile(
-                    index: 1,
-                    icon: Icons.verified_rounded,
-                    label: 'Payment Verification',
-                    subtitle: 'GCash & Bank receipt audits',
-                    badgeCount: pendingCount,
-                  ),
-                  _buildNavTile(
-                    index: 2,
-                    icon: Icons.mark_email_unread_rounded,
-                    label: 'Visitor Inquiries & Leads',
-                    subtitle: 'Advertisement responses & quotes',
-                    badgeCount: InquiryStore.instance.pendingCount,
-                  ),
-                  _buildNavTile(
-                    index: 3,
-                    icon: Icons.people_rounded,
-                    label: 'Visitor Database',
-                    subtitle: 'Demographics & booking history',
-                  ),
-                  _buildNavTile(
-                    index: 4,
-                    icon: Icons.bar_chart_rounded,
-                    label: 'Descriptive Reports',
-                    subtitle: 'Monthly visits & ratings',
-                  ),
-                  _buildNavTile(
-                    index: 5,
-                    icon: Icons.calendar_month_rounded,
-                    label: 'Master Farm Calendar',
-                    subtitle: 'Daily capacity & slot limits',
-                  ),
-                  _buildNavTile(
-                    index: 6,
-                    icon: Icons.request_quote_rounded,
-                    label: 'Pricing & Quotations',
-                    subtitle: 'Base rates & add-on rules',
-                  ),
-                  _buildNavTile(
-                    index: 7,
-                    icon: Icons.campaign_rounded,
-                    label: 'Promotions Manager',
-                    subtitle: 'Hero videos & highlights',
-                  ),
-                  _buildNavTile(
-                    index: 8,
-                    icon: Icons.star_rounded,
-                    label: 'Feedback & Quality',
-                    subtitle: '5-factor survey ratings',
-                  ),
-                  _buildNavTile(
-                    index: 9,
-                    icon: Icons.person_rounded,
-                    label: 'Admin Profile & Settings',
-                    subtitle: 'Security, hours & preferences',
-                  ),
-                ],
+                children: categorizedItems.entries.map((entry) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(8, 12, 8, 4),
+                        child: Text(
+                          entry.key.toUpperCase(),
+                          style: const TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.8,
+                            color: AppColors.textSecondary,
+                          ),
+                        ),
+                      ),
+                      ...entry.value.map((item) {
+                        final index = items.indexOf(item);
+                        final badge = item.badgeCount != null ? item.badgeCount!() : 0;
+                        return _buildNavTile(
+                          index: index,
+                          icon: item.icon,
+                          label: item.label,
+                          subtitle: item.subtitle,
+                          badgeCount: badge,
+                        );
+                      }),
+                      const SizedBox(height: 4),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
 
@@ -268,7 +454,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
                     child: OutlinedButton.icon(
                       onPressed: () {
                         UserSession.instance.logout();
-                        Navigator.pushReplacementNamed(context, '/login');
+                        Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
                       },
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.error,
@@ -391,7 +577,7 @@ class _AdminMainNavigationState extends State<AdminMainNavigation> {
               setState(() {
                 _currentIndex = index;
               });
-              Navigator.pop(context); // Hide side drawer
+              _scaffoldKey.currentState?.closeDrawer();
             },
           ),
         ),

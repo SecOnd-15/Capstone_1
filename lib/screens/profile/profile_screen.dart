@@ -108,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: OutlinedButton.icon(
                   onPressed: () {
                     UserSession.instance.logout();
-                    Navigator.pushReplacementNamed(context, '/login');
+                    Navigator.pushNamedAndRemoveUntil(context, '/landing', (route) => false);
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.error,

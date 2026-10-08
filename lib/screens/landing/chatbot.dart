@@ -1,22 +1,22 @@
 import 'package:flutter/material.dart';
 
-class ChatBotSheet extends StatefulWidget {
-  const ChatBotSheet({super.key});
+class ChatBot extends StatefulWidget {
+  const ChatBot({super.key});
 
   static Future<void> show(BuildContext context) {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => const ChatBotSheet(),
+      builder: (_) => const ChatBot(),
     );
   }
 
   @override
-  State<ChatBotSheet> createState() => _ChatBotSheetState();
+  State<ChatBot> createState() => _ChatBotState();
 }
 
-class _ChatBotSheetState extends State<ChatBotSheet> {
+class _ChatBotState extends State<ChatBot> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<_ChatMessage> _messages = [];

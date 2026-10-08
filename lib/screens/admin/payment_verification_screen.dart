@@ -4,7 +4,8 @@ import '../../models/booking_model.dart';
 
 class PaymentVerificationScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const PaymentVerificationScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const PaymentVerificationScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<PaymentVerificationScreen> createState() => _PaymentVerificationScreenState();
@@ -48,10 +49,18 @@ class _PaymentVerificationScreenState extends State<PaymentVerificationScreen> {
         backgroundColor: AppColors.background,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          leading: IconButton(
-            icon: const Icon(Icons.menu_rounded, color: AppColors.textPrimary),
-            onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
-          ),
+          leading: (widget.onBack != null || Navigator.canPop(context))
+              ? IconButton(
+                  icon: const Icon(Icons.arrow_back_rounded, color: AppColors.textPrimary),
+                  onPressed: () {
+                    if (widget.onBack != null) {
+                      widget.onBack!();
+                    } else if (Navigator.canPop(context)) {
+                      Navigator.pop(context);
+                    }
+                  },
+                )
+              : null,
           title: const Text(
             'Payment Verification',
             style: TextStyle(

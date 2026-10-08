@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:math' as math;
 import '../../core/theme/app_colors.dart';
 import '../../models/experience_model.dart';
-import 'booking_screen.dart';
+import 'smart_concierge_results_screen.dart';
 
 class SmartConciergeScreen extends StatefulWidget {
   const SmartConciergeScreen({super.key});
@@ -18,8 +18,29 @@ class _SmartConciergeScreenState extends State<SmartConciergeScreen> {
   int _selectedInterest = 1;     // 0: Cacao Farming & Ecology, 1: Chocolate Making & Culinary, 2: Relaxation/Custom
   int _selectedBudget = 1;       // 0: Budget Friendly (<₱1000), 1: Standard (₱1000-₱2000), 2: Premium (₱2000+)
 
-  bool _isCalculated = false;
-  List<Map<String, dynamic>> _recommendations = [];
+  static const List<String> _activityOptions = [
+    '🌿 Nature Trail & Agroforest Walk',
+    '🍫 Hands-on Chocolate Making',
+    '✨ Bespoke Custom Package',
+  ];
+
+  static const List<String> _groupOptions = [
+    'Solo / Couple (1–2 guests)',
+    'Family & Friends (3–6 guests)',
+    'Corporate / Academic Group (7+ guests)',
+  ];
+
+  static const List<String> _interestOptions = [
+    'Regenerative Farming & Biodiversity',
+    'Gastronomy, Roasting & Tasting',
+    'Private Retreat & Tailored Activities',
+  ];
+
+  static const List<String> _budgetOptions = [
+    '₱500 – ₱900 (Value)',
+    '₱1,000 – ₱1,800 (Standard Immersion)',
+    '₱2,000+ (Comprehensive/Retreat)',
+  ];
 
   // Cosine Similarity Computation (Formula from Paper Section 2.2.2.1)
   double _calculateCosineSimilarity(List<double> userVec, List<double> itemVec) {
@@ -62,10 +83,22 @@ class _SmartConciergeScreenState extends State<SmartConciergeScreen> {
     // Rank highest cosine similarity first
     results.sort((a, b) => (b['similarity'] as double).compareTo(a['similarity'] as double));
 
-    setState(() {
-      _recommendations = results;
-      _isCalculated = true;
-    });
+    final selectedLabels = [
+      _activityOptions[_selectedActivityType],
+      _groupOptions[_selectedGroupSize],
+      _interestOptions[_selectedInterest],
+      _budgetOptions[_selectedBudget],
+    ];
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SmartConciergeResultsScreen(
+          recommendations: results,
+          selectedPreferences: selectedLabels,
+        ),
+      ),
+    );
   }
 
   @override
@@ -206,178 +239,6 @@ class _SmartConciergeScreenState extends State<SmartConciergeScreen> {
               ),
             ),
 
-            if (_isCalculated) ...[
-              const SizedBox(height: 32),
-              const Row(
-                children: [
-                  Icon(Icons.check_circle_rounded, color: AppColors.success, size: 22),
-                  SizedBox(width: 8),
-                  Text(
-                    'Recommended Packages (Ranked)',
-                    style: TextStyle(
-                      fontFamily: 'Poppins',
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 14),
-              ..._recommendations.map((item) {
-                final Experience exp = item['experience'];
-                final String match = item['matchPercentage'];
-                final bool isTop = _recommendations.first == item;
-
-                return Container(
-                  margin: const EdgeInsets.only(bottom: 16),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: isTop ? AppColors.primary : Colors.grey.shade200,
-                      width: isTop ? 2 : 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.06),
-                        blurRadius: 10,
-                        offset: const Offset(0, 3),
-                      ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(colors: exp.gradientColors),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(exp.imageEmoji, style: const TextStyle(fontSize: 24)),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(
-                                        exp.title,
-                                        style: const TextStyle(
-                                          fontFamily: 'Poppins',
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w700,
-                                          color: AppColors.textPrimary,
-                                        ),
-                                      ),
-                                      if (isTop) ...[
-                                        const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary,
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: const Text(
-                                            'BEST FIT',
-                                            style: TextStyle(
-                                              fontSize: 9,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  Text(
-                                    exp.subtitle,
-                                    style: const TextStyle(
-                                      fontFamily: 'Poppins',
-                                      fontSize: 12,
-                                      color: AppColors.textSecondary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            // Match badge
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                              decoration: BoxDecoration(
-                                color: isTop ? AppColors.success.withValues(alpha: 0.15) : Colors.grey.shade100,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                '$match% Match',
-                                style: TextStyle(
-                                  fontFamily: 'Poppins',
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w700,
-                                  color: isTop ? AppColors.success : AppColors.textPrimary,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Text(
-                          exp.description,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontFamily: 'Poppins',
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
-                            height: 1.4,
-                          ),
-                        ),
-                        const SizedBox(height: 14),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              '₱${exp.price.toStringAsFixed(0)} / person',
-                              style: const TextStyle(
-                                fontFamily: 'Poppins',
-                                fontSize: 16,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => BookingScreen(experience: exp),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                              child: const Text('Book This Package'),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-            ],
             const SizedBox(height: 40),
           ],
         ),

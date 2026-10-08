@@ -4,7 +4,8 @@ import '../../models/inquiry_store.dart';
 
 class AdminInquiriesScreen extends StatefulWidget {
   final GlobalKey<ScaffoldState>? scaffoldKey;
-  const AdminInquiriesScreen({super.key, this.scaffoldKey});
+  final VoidCallback? onBack;
+  const AdminInquiriesScreen({super.key, this.scaffoldKey, this.onBack});
 
   @override
   State<AdminInquiriesScreen> createState() => _AdminInquiriesScreenState();
@@ -29,15 +30,19 @@ class _AdminInquiriesScreenState extends State<AdminInquiriesScreen> {
           appBar: AppBar(
             backgroundColor: const Color(0xFF0F4E31),
             elevation: 0,
-            leading: widget.scaffoldKey != null
+            automaticallyImplyLeading: false,
+            leading: (widget.onBack != null || Navigator.canPop(context))
                 ? IconButton(
-                    icon: const Icon(Icons.menu_rounded, color: Colors.white),
-                    onPressed: () => widget.scaffoldKey?.currentState?.openDrawer(),
-                  )
-                : IconButton(
                     icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
-                    onPressed: () => Navigator.pop(context),
-                  ),
+                    onPressed: () {
+                      if (widget.onBack != null) {
+                        widget.onBack!();
+                      } else if (Navigator.canPop(context)) {
+                        Navigator.pop(context);
+                      }
+                    },
+                  )
+                : null,
             title: const Text(
               'Visitor Inquiries & Leads',
               style: TextStyle(
